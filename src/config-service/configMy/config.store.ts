@@ -5,10 +5,6 @@ import { compile } from 'handlebars';
 export class ConfigStore {
     private _data: any = {};
     private readonly _map: { [key: string]: any } = {};
-    private readonly watchRefs: {
-        [key: string]: Array<(value: any) => void>;
-    } = {};
-    private readonly defined: { [key: string]: boolean } = {};
 
     public get data() {
         return this._data;
@@ -31,28 +27,12 @@ export class ConfigStore {
         this.updateConfigMap();
     }
 
-    public merge(data: any) {
-    }
+
 
     public get<T extends any>(path: string, defaults?: T): T {
         return get(this._data, path, defaults);
     }
 
-    public watch(path: string, ref: (value: any) => void) {
-        if (!this.watchRefs[path]) {
-            this.watchRefs[path] = [];
-        }
-        this.watchRefs[path].push(ref);
-
-        if (!this.defined[path]) {
-            Object.defineProperty(this._map, path, {
-                set: newVal => {
-                    this.watchRefs[path].forEach(cb => cb(newVal));
-                },
-            });
-            this.defined[path] = true;
-        }
-    }
 
     private compileWithEnv(key: string | number, parent: any, config: any) {
         if (isString(config)) {

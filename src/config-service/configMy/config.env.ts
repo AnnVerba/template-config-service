@@ -1,37 +1,42 @@
-import { Consul } from 'consul';
 import { get } from 'lodash';
+
 import * as YAML from 'yamljs';
 import { Logger, OnModuleInit } from '@nestjs/common';
-
 import { ConfigStore } from './config.store';
 import { ConfigSyncException } from './exceptions/config-sync.exception';
-
 import { NO_NAME_PROVIDE } from './config.messages';
+import dotenv from 'dotenv'
+
 import {IConfig} from "./interfaces/new/config.interface";
 import {sleep} from "../sleep.util";
 
-
-export class ConsulConfig implements IConfig, OnModuleInit {
-    private readonly retryInterval: 5000;
-
+export class EnvConfig implements IConfig, OnModuleInit {
+    private readonly retryInterval = 5000;
     private readonly logger = new Logger('ConfigModule');
 
     constructor(
         private readonly store: ConfigStore,
-        private readonly consul: Consul,
+        private readonly client,
         private readonly name: string,
+
     ) {
     }
 
     async onModuleInit() {
+        dotenv.config()
         if (!this.name) {
             throw new Error(NO_NAME_PROVIDE);
         }
         while (true) {
             try {
-                const result = await this.consul.kv.get(this.name);
-                this.store.data = result ? YAML.parse(result.Value) : {};
-
+                const result = process.env;
+                const data = get(result, this.name,  'Env five dont have sach key');
+                try {
+                    this.store.data = data;
+                } catch (e) {
+                    this.logger.error('parse config data error', e);
+                    this.store.data = {};
+                }
                 this.logger.log('ConfigModule initialized');
                 break;
             } catch (e) {
@@ -48,14 +53,9 @@ export class ConsulConfig implements IConfig, OnModuleInit {
         return get(this.store.data, path, defaults);
     }
 
-    async set(path: string, value: any) {
-        this.store.update(path, value);
-        const yamlString = YAML.stringify(this.store.data);
-        try {
-            await this.consul.kv.set(this.name, yamlString);
-        } catch (e) {
-            throw new ConfigSyncException(e.message, e.stack);
-        }
+    async set(path: string, value: any): Promise<void> {
+      // can i use fs to write to env file?
     }
+
 
 }

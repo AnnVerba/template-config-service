@@ -1,4 +1,4 @@
-import {IConfig} from "./config/interfaces/config.interface";
+import {IConfig} from "./configMy/interfaces/new/config.interface";
 
 
 export class AdapterProvider implements IConfig {

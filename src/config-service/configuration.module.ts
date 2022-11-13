@@ -3,11 +3,11 @@ import {DynamicModule, Module} from '@nestjs/common';
 import {DiscoveryModule} from "@nestjs/core";
 import {ConfigMetadataAccessor} from "./config/config-metadata.accessor";
 import {ConfigOrchestrator} from "./config/config.orchestrator";
-import {ConfigOptions} from "./config/interfaces/config-options.interface";
+import {ConfigOptions} from "./configMy/interfaces/new/config-options.interface";
 import {ConfigStore} from "./config/config.store";
 import {ConfigFactory} from "./config/config.factory";
 import {ConfigExplorer} from "./config/config.explorer";
-import {IConfig} from "./config/interfaces/config.interface";
+import {IConfig} from "./configMy/interfaces/new/config.interface";
 
 @Module({
   imports: [DiscoveryModule],
